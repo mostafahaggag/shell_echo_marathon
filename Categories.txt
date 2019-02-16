@@ -3,3 +3,13 @@ Turn the lights off
 Turn the lights on
 Close the lights
 Open the lights
+Turn off Flashers
+Turn on Flashers
+Close the Flashers
+Open the Flashers
+Get the temperature
+Get the humidity
+Get the heart rate
+Get the speed
+Get the motor temperature
+is it raining
