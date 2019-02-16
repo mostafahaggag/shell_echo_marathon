@@ -76,7 +76,7 @@ class DNN:
 #validation accuracy bey2sar validation split el betbaselha data lw 2alleet validaiton split small acurracy bet2al
 
 class RNN:
-    def __init__(self, epochs=14, batch_size=16, validation_split=0.2, categories=CATEGORIES):
+    def __init__(self, epochs=12, batch_size=16, validation_split=0.2, categories=CATEGORIES):
 
         pickle_in = open("X.pickle", "rb")
         x_train = pickle.load(pickle_in)
@@ -87,30 +87,34 @@ class RNN:
         #20
         #(sample rate/chunck)*seconds
         self.x_train = tf.keras.utils.normalize(self.x_train)
-
         pickle_in = open("Y.pickle", "rb")
         y_train = pickle.load(pickle_in)
         y_train = np.array(y_train)
         #lb = LabelEncoder()
         self.y_train = utils.to_categorical(y_train)#lb.fit_transform(y_train))
-
         self.epochs = epochs ## feedforward plus back propagation
         self.batch_size = batch_size #number of training examples utilized in one iteration
         self.validation_split = validation_split
         self.categories = categories
         self.x_train = tf.keras.utils.normalize(self.x_train)
-
         pickle_in = open("Z.pickle", "rb")
         x_test = pickle.load(pickle_in)
         self.x_test = np.array(x_test)
         self.x_test=self.x_test.reshape(self.x_test.shape[0],130,20)
         self.x_test=tf.keras.utils.normalize(self.x_test)
-
         pickle_in = open("W.pickle", "rb")
         y_test = pickle.load(pickle_in)
         y_test = np.array(y_test)
         self.y_test=utils.to_categorical(y_test)
+        model = tf.keras.models.Sequential()
+        self.model=model
 
+
+    def on_epoch_end(self):
+        x=self.x_test
+        y=self.y_test
+        loss, acc = self.model.evaluate(x, y, verbose=0)
+        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
 
     def train(self):
         #.add to add a new layer
@@ -119,27 +123,32 @@ class RNN:
         # (and only the first, because following layers can do automatic shape inference)
         #  needs to receive information about its input shape
         #input_shape
-
-        model = tf.keras.models.Sequential()
-        model.add(tf.keras.layers.LSTM(units=256, input_shape=self.x_train.shape[1:],return_sequences=True))
+        self.model.add(tf.keras.layers.LSTM(units=256, input_shape=self.x_train.shape[1:],return_sequences=True))
         #bad5aaal el 130
-        model.add(tf.keras.layers.Dropout(0.5))
         # avoid over fitting
         #dropout consists in rando1mly setting a fraction rate of input units to 0 at each update
         #during training time preventing overfitting
-        model.add(tf.keras.layers.LSTM(units=256))
-        model.add(tf.keras.layers.Dropout(0.5))
-        model.add(tf.keras.layers.Flatten())
+        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        # self.model.add(tf.keras.layers.Dropout(0.5))
+        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        self.model.add(tf.keras.layers.LSTM(units=256))
+        # self.model.add(tf.keras.layers.Flatten())
         adam = tf.keras.optimizers.Adam(lr=0.001)
-        model.add(tf.keras.layers.Dense(units=len(self.categories), activation='softmax'))
-        model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=adam)
+        self.model.add(tf.keras.layers.Dense(units=len(self.categories), activation='softmax'))
+        self.model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=adam)
+        score, acc = self.model.evaluate(self.x_test, self.y_test,
+                                    batch_size=self.batch_size)
+        print('Test score:', score)
+        print('Test accuracy:', acc)
         #Configures the model for training.
         #metric 3ayz a evaluate eh during trainning and testing
-        print(model.summary())
-        history = model.fit(self.x_train, self.y_train, batch_size=self.batch_size, epochs=self.epochs
+        print(self.model.summary())
+        history = self.model.fit(self.x_train, self.y_train, batch_size=self.batch_size, epochs=self.epochs
                             , validation_split=self.validation_split
                             , verbose=1)
-        #Trains the model for a given number of epochs (iterations on a dataset).
+        loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
+        # self.model.evaluate(self.x_test, self.y_test, verbose=0)        #Trains the model for a given number of epochs (iterations on a dataset).
         #fit(x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None, validation_split=0.0, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None)
         #x nump array of training data.
         #y numpy array of labels.
@@ -153,13 +162,16 @@ class RNN:
         newdirectory=now.strftime("%Y_%m_%d-%H%M")
         newdirectory=newdirectory+"_RNN"
         os.mkdir(newdirectory)
-        model.save(newdirectory+"\\ModelRNN.h5")
-        model.save("ModelRNN.h5")
+        self.model.save(newdirectory+"\\ModelRNN.h5")
+        self.model.save("ModelRNN.h5")
         plot_saving(history,newdirectory)
         newtest=newdirectory+"\\Categories.txt"
         shutil.copyfile(catdir, newtest)
 
         return history
+
+
+
 def plot(history):
     # Plot training & validation accuracy values
     plt.clf()

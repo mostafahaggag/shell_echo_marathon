@@ -89,6 +89,9 @@ class Recognizer:
                     testing_accuracy=testing_accuracy+1
             result=(testing_accuracy/predicted.shape[0])*100
             print(result)
+            loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
+            print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
+
             print(predicted.shape[0])
 
 
