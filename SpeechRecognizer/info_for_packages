@@ -1,0 +1,16 @@
+THis file is mainly used to tell us more about the packages needed:
+numpy
+keras
+tensor flow
+pickle
+sklearn.preprocessing
+matplotlib.pyplot
+os
+pyaudio
+librosa
+wave
+time
+re
+random
+scipy
+pydub
