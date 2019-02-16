@@ -1,6 +1,3 @@
-Turn the lights on
-Close the lights
-Open the lights
 Turn off Flashers
 Turn on Flashers
 Close the Flashers

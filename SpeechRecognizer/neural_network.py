@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.python.keras import utils
 import matplotlib.pyplot as plt
 import os
-
+from tensorflow.python.keras.callbacks import Callback
 import datetime
 import sys
 from shutil import copyfile
@@ -74,7 +74,18 @@ class DNN:
 #traininging w validation
 #hyperpapmaters el homa  epochs wi activation funciton batch size
 #validation accuracy bey2sar validation split el betbaselha data lw 2alleet validaiton split small acurracy bet2al
+class TestCallback(Callback):
+    def __init__(self, test_data):
+        self.test_data = test_data
+        self.array=[]
 
+    def on_epoch_end(self, epoch, logs={}):
+        x, y = self.test_data
+        loss, acc = self.model.evaluate(x, y, verbose=0)
+        self.array.append([epoch, acc,loss])
+        logs['testing_acc'] = acc
+        logs['testing_loss'] = loss
+        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
 class RNN:
     def __init__(self, epochs=12, batch_size=16, validation_split=0.2, categories=CATEGORIES):
 
@@ -108,14 +119,6 @@ class RNN:
         self.y_test=utils.to_categorical(y_test)
         model = tf.keras.models.Sequential()
         self.model=model
-
-
-    def on_epoch_end(self):
-        x=self.x_test
-        y=self.y_test
-        loss, acc = self.model.evaluate(x, y, verbose=0)
-        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
-
     def train(self):
         #.add to add a new layer
         #The model needs to know what input shape it should expect.
@@ -128,26 +131,27 @@ class RNN:
         # avoid over fitting
         #dropout consists in rando1mly setting a fraction rate of input units to 0 at each update
         #during training time preventing overfitting
-        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
         # self.model.add(tf.keras.layers.Dropout(0.5))
-        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
-        self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
+        # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
         self.model.add(tf.keras.layers.LSTM(units=256))
         # self.model.add(tf.keras.layers.Flatten())
         adam = tf.keras.optimizers.Adam(lr=0.001)
         self.model.add(tf.keras.layers.Dense(units=len(self.categories), activation='softmax'))
         self.model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer=adam)
-        score, acc = self.model.evaluate(self.x_test, self.y_test,
-                                    batch_size=self.batch_size)
-        print('Test score:', score)
-        print('Test accuracy:', acc)
+        # score, acc = self.model.evaluate(self.x_test, self.y_test,
+        #                             batch_size=self.batch_size)
+        # print('Test score:', score)
+        # print('Test accuracy:', acc)
         #Configures the model for training.
         #metric 3ayz a evaluate eh during trainning and testing
         print(self.model.summary())
         history = self.model.fit(self.x_train, self.y_train, batch_size=self.batch_size, epochs=self.epochs
                             , validation_split=self.validation_split
-                            , verbose=1)
-        loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
+                            , verbose=1, callbacks = [TestCallback((self.x_test, self.y_test))])
+      #  , callbacks = [TestCallback((self.x_test, self.y_test))]
+        # loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
         # self.model.evaluate(self.x_test, self.y_test, verbose=0)        #Trains the model for a given number of epochs (iterations on a dataset).
         #fit(x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None, validation_split=0.0, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None)
         #x nump array of training data.
@@ -177,23 +181,24 @@ def plot(history):
     plt.clf()
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])
+    plt.plot(history.history['testing_acc'])
+
     plt.title('Model accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.legend(['Train', 'Validation','Testing'], loc='upper left')
     plt.show()
     plt.clf()
 
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
+    plt.plot(history.history['testing_loss'])
     plt.title('Model loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.legend(['Train', 'Validation','Testing'], loc='upper left')
     plt.show()
-
-
 def plot_saving(history,folder):
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])

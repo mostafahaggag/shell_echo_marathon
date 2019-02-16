@@ -64,7 +64,7 @@ import librosa
 import numpy as np
 # from pydub import AudioSegment
 # from SpeechRecognizer.recorder import SoundRecorder
-pickle_in = open("X.pickle", "rb")
+pickle_in = open("W.pickle", "rb")
 x_train = pickle.load(pickle_in)
 x_train = np.array(x_train)
 print(x_train.shape)
