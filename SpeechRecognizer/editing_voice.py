@@ -4,10 +4,10 @@ from pydub import AudioSegment
 from pydub.playback import play
 import string
 cwd = os.path.abspath(os.path.join("", os.pardir))
-Dir = cwd+"\\custom_audio"
-Official_directory=cwd+"\\audio"
-catdir = cwd+"\\Categories.txt"
-Magnitude=cwd+"\\custom_magnitude"
+Dir = cwd+"/custom_audio"
+Official_directory=cwd+"/audio"
+catdir = cwd+"/Categories.txt"
+Magnitude=cwd+"/custom_magnitude"
 f = open(catdir, "r")
 CATEGORIES = f.read().replace('\n', ',').split(',')
 f.close()
@@ -29,13 +29,13 @@ class changing_wav_files:
         for cat in self.categories:
             if cat not in l:
                 print("the word '", cat, "' does't have a folder but it will be added  :)")
-                os.makedirs(self.new_dir + "\\" + cat)
+                os.makedirs(self.new_dir + "/" + cat)
         for file in os.listdir(self.magnitude_directory):
             y.append(str(file))
         for cat in self.categories:
             if cat not in y:
                 print("the word '", cat, "' does't have a folder but it will be added  :)")
-                os.makedirs(self.magnitude_directory + "\\" + cat)
+                os.makedirs(self.magnitude_directory + "/" + cat)
     def play_with_pitch(self,min_pitch=0.3,max_pitch=1,step_pitch=0.2):
         for category in self.categories:
             path = os.path.join(self.old_directory, category)#i get directory el beywadeny li kol el files
@@ -43,8 +43,8 @@ class changing_wav_files:
             #print(path)
             # badeey li kol category a kind of an index mo3yan fa maslan close the light 3anadah category 4
             for file in sorted(os.listdir(path)):
-                file = self.old_directory + "\\" + category + "\\" + file
-                file=file.replace("\\","\\\\")
+                file = self.old_directory + "/" + category + "/" + file
+                file=file.replace("/","//")
                 #print("the file is")
                 # print(file)
                 #kda ana ma3aya files el betstart mn 1 li 27
@@ -57,7 +57,7 @@ class changing_wav_files:
                           hipitch_sound = sound._spawn(sound.raw_data, overrides={'frame_rate': new_sample_rate})
                           hipitch_sound = hipitch_sound.set_frame_rate(44100)
                           test=self.get_last_number(category)+1
-                          data=self.new_dir+"\\"+category+"\\"+str(test)+".wav"
+                          data=self.new_dir+"/"+category+"/"+str(test)+".wav"
                           # #print(data)
                           hipitch_sound.export(data, format="wav")
                 except Exception as e:
@@ -87,8 +87,8 @@ class changing_wav_files:
             #print(path)
             # badeey li kol category a kind of an index mo3yan fa maslan close the light 3anadah category 4
             for file in sorted(os.listdir(path)):
-                file = self.old_directory + "\\" + category + "\\" + file
-                file=file.replace("\\","\\\\")
+                file = self.old_directory + "/" + category + "/" + file
+                file=file.replace("/","//")
                 #print("the file is")
                 #print(file)
                 #kda ana ma3aya files el betstart mn 1 li 27
@@ -100,7 +100,7 @@ class changing_wav_files:
                             song = song + mag
                             song=song.set_frame_rate(44100)
                             test = self.get_last_number_mag(category) + 1
-                            data = self.magnitude_directory + "\\" + category + "\\" + str(test) + ".wav"
+                            data = self.magnitude_directory + "/" + category + "/" + str(test) + ".wav"
                             song.export(data,format="wav")
                 except Exception as e:
                     print(e)

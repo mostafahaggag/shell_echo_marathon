@@ -11,7 +11,7 @@ import sys
 from shutil import copyfile
 
 cwd = os.path.abspath(os.path.join("", os.pardir))
-catdir = cwd+"\\Categories.txt"
+catdir = cwd+"/Categories.txt"
 file = open(catdir, "r")
 CATEGORIES = file.read().replace('\n', ',').split(',')
 file.close()
@@ -63,9 +63,9 @@ class DNN:
         newdirectory=now.strftime("%Y_%m_%d-%H%M")
         newdirectory=newdirectory+"_DNN"
         os.mkdir(newdirectory)
-        model.save(newdirectory+"\\Model.h5")
+        model.save(newdirectory+"/Model.h5")
         model.save("Model.h5")
-        newtest=newdirectory+"\\Categories.txt"
+        newtest=newdirectory+"/Categories.txt"
         shutil.copyfile(catdir, newtest)
         plot_saving(history,newdirectory)
         return history
@@ -87,7 +87,7 @@ class TestCallback(Callback):
         logs['testing_loss'] = loss
         print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
 class RNN:
-    def __init__(self, epochs=12, batch_size=16, validation_split=0.2, categories=CATEGORIES):
+    def __init__(self, epochs=40, batch_size=16, validation_split=0.2, categories=CATEGORIES):
 
         pickle_in = open("X.pickle", "rb")
         x_train = pickle.load(pickle_in)
@@ -107,7 +107,6 @@ class RNN:
         self.batch_size = batch_size #number of training examples utilized in one iteration
         self.validation_split = validation_split
         self.categories = categories
-        self.x_train = tf.keras.utils.normalize(self.x_train)
         pickle_in = open("Z.pickle", "rb")
         x_test = pickle.load(pickle_in)
         self.x_test = np.array(x_test)
@@ -132,10 +131,15 @@ class RNN:
         #dropout consists in rando1mly setting a fraction rate of input units to 0 at each update
         #during training time preventing overfitting
         # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
-        # self.model.add(tf.keras.layers.Dropout(0.5))
+        self.model.add(tf.keras.layers.Dropout(0.2))
+        self.model.add(tf.keras.layers.LSTM(units=256, return_sequences=True))
+        self.model.add(tf.keras.layers.Dropout(0.2))
+        self.model.add(tf.keras.layers.LSTM(units=256, return_sequences=True))
+        self.model.add(tf.keras.layers.Dropout(0.2))
         # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
         # self.model.add(tf.keras.layers.LSTM(units=256,return_sequences=True))
         self.model.add(tf.keras.layers.LSTM(units=256))
+        self.model.add(tf.keras.layers.Dropout(0.2))
         # self.model.add(tf.keras.layers.Flatten())
         adam = tf.keras.optimizers.Adam(lr=0.001)
         self.model.add(tf.keras.layers.Dense(units=len(self.categories), activation='softmax'))
@@ -150,6 +154,9 @@ class RNN:
         history = self.model.fit(self.x_train, self.y_train, batch_size=self.batch_size, epochs=self.epochs
                             , validation_split=self.validation_split
                             , verbose=1, callbacks = [TestCallback((self.x_test, self.y_test))])
+        loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=0)
+        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
+
       #  , callbacks = [TestCallback((self.x_test, self.y_test))]
         # loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
         # self.model.evaluate(self.x_test, self.y_test, verbose=0)        #Trains the model for a given number of epochs (iterations on a dataset).
@@ -166,12 +173,11 @@ class RNN:
         newdirectory=now.strftime("%Y_%m_%d-%H%M")
         newdirectory=newdirectory+"_RNN"
         os.mkdir(newdirectory)
-        self.model.save(newdirectory+"\\ModelRNN.h5")
+        self.model.save(newdirectory+"/ModelRNN.h5")
         self.model.save("ModelRNN.h5")
         plot_saving(history,newdirectory)
-        newtest=newdirectory+"\\Categories.txt"
+        newtest=newdirectory+"/Categories.txt"
         shutil.copyfile(catdir, newtest)
-
         return history
 
 
@@ -203,17 +209,19 @@ def plot_saving(history,folder):
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])
+    plt.plot(history.history['testing_acc'])
     plt.title('Model accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig(folder+'\\accuracy.png')
+    plt.legend(['Train', 'Validation','Testing'], loc='upper left')
+    plt.savefig(folder+'/accuracy.png')
     plt.clf()
     # Plot training & validation loss values
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
+    plt.plot(history.history['testing_loss'])
     plt.title('Model loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig(folder+'\\loss.png')
+    plt.legend(['Train', 'Validation','Testing'], loc='upper left')
+    plt.savefig(folder+'/loss.png')

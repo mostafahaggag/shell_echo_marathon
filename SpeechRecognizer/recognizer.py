@@ -1,13 +1,13 @@
 from tensorflow.python.keras.models import load_model
 import numpy as np
-from SpeechRecognizer.recorder import SoundRecorder
-from SpeechRecognizer.sound_extractor import get_features
+from recorder import SoundRecorder
+from sound_extractor import get_features
 import os
 import pickle
 import tensorflow as tf
 from tensorflow.python.keras import utils
 cwd = os.path.abspath(os.path.join("", os.pardir))
-catdir = cwd+"\\Categories.txt"
+catdir = cwd+"/Categories.txt"
 file = open(catdir, "r")
 CATEGORIES = file.read().replace('\n', ',').split(',')
 file.close()
@@ -21,8 +21,6 @@ class Recognizer:
         pickle_in = open("Z.pickle", "rb")
         x_test = pickle.load(pickle_in)
         self.x_test = np.array(x_test)
-
-
         pickle_in = open("W.pickle", "rb")
         y_test = pickle.load(pickle_in)
         y_test = np.array(y_test)
@@ -44,6 +42,7 @@ class Recognizer:
             test_x = test_x.reshape((1, len(test_x)))
         elif type is "RNN":
             test_x = test_x.reshape((1, test_x.shape[1],test_x.shape[0]))
+            test_x = tf.keras.utils.normalize(test_x)
         predicted = self.model.predict(test_x)
         predicted = predicted[0]
         r,predicted = predicted[np.argmax(predicted)]*100,self.categories.__getitem__(np.argmax(predicted))
@@ -56,6 +55,8 @@ class Recognizer:
             test_x = test_x.reshape((1, len(test_x)))
         elif type is "RNN":
             test_x = test_x.reshape((1, test_x.shape[1],test_x.shape[0]))
+            test_x = tf.keras.utils.normalize(test_x)
+
         predicted = self.model.predict(test_x)
         #print(predicted)
         predicted = predicted[0]
@@ -71,6 +72,7 @@ class Recognizer:
             test_x = test_x.reshape((1, len(test_x)))
         elif type is "RNN":
             test_x = test_x.reshape((1, test_x.shape[1],test_x.shape[0]))
+            test_x = tf.keras.utils.normalize(test_x)
         predicted = self.model.predict(test_x)
         predicted = predicted[0]
         r, predicted = predicted[np.argmax(predicted)] * 100, self.categories.__getitem__(np.argmax(predicted))
@@ -81,8 +83,9 @@ class Recognizer:
                 self.x_test = self.x_test.reshape((self.x_test.shape[0], len(self.x_test)))
             elif type is "RNN":
                 self.x_test = self.x_test.reshape(self.x_test.shape[0], 130, 20)
-            predicted =self.model.predict(self.x_test)
+                self.x_test=tf.keras.utils.normalize(self.x_test)
             testing_accuracy=0
+            predicted =self.model.predict(self.x_test)
             for index in range(0,predicted.shape[0]):
                 The_prediction=np.argmax(predicted[index])
                 if The_prediction == np.argmax(self.y_test[index]):
@@ -91,18 +94,4 @@ class Recognizer:
             print(result)
             loss, acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
             print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
-
             print(predicted.shape[0])
-
-
-
-
-
-
-
-
-
-
-
-
-

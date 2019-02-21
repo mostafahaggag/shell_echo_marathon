@@ -3,8 +3,8 @@ import wave
 import os
 import re
 import time
-from SpeechRecognizer.audio_player import AudioFile
-from SpeechRecognizer.Filter import Filteration
+from audio_player import AudioFile
+from Filter import Filteration
 from termcolor import colored
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -12,8 +12,8 @@ CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 3
 cwd = os.path.abspath(os.path.join("", os.pardir))
-Dir = cwd+"\\audio"
-catdir = cwd+"\\Categories.txt"
+Dir = cwd+"/audio"
+catdir = cwd+"/Categories.txt"
 f = open(catdir, "r")
 CATEGORIES = f.read().replace('\n', ',').split(',')
 f.close()
@@ -29,10 +29,10 @@ class SoundRecorder:
         for cat in self.categories:
             if cat not in l:
                 print("the word '", cat, "' does't have a folder but it will be added  :)")
-                os.makedirs(self.dir+"\\"+cat)
+                os.makedirs(self.dir+"/"+cat)
         self.recording_period = recording_period
-        self.ding = AudioFile(self.dir + '\ding.wav')
-        self.dong = AudioFile(self.dir + '\dong.wav')
+        self.ding = AudioFile(self.dir + '/ding.wav')
+        self.dong = AudioFile(self.dir + '/dong.wav')
 
     def get_last_number(self, cat):
         path = os.path.join(self.dir, cat)
@@ -165,7 +165,7 @@ class SoundRecorder:
 
     def delete_last(self, cat):
         last_number = self.get_last_number(cat)
-        fi = self.dir + "\\" + cat + "\\" + str(last_number) + ".wav"
+        fi = self.dir + "/" + cat + "/" + str(last_number) + ".wav"
         os.remove(fi)
 
     def record_for_one_category(self, category):
@@ -176,7 +176,7 @@ class SoundRecorder:
         time.sleep(2)
 
         after_last_number = self.get_last_number(category) + 1
-        file = self.dir + "\\" + category + "\\" + str(after_last_number) + ".wav"
+        file = self.dir + "/" + category + "/" + str(after_last_number) + ".wav"
         self.record(file, category)
         print("Thank You For Helping :)")
 
@@ -188,7 +188,7 @@ class SoundRecorder:
 
         for category in self.categories:
             after_last_number = self.get_last_number(category)+1
-            file = self.dir + "\\" + category + "\\" + str(after_last_number)+".wav"
+            file = self.dir + "/" + category + "/" + str(after_last_number)+".wav"
             self.record(file, category)
         print("Thank You For Helping :)")
 

@@ -1,16 +1,16 @@
 THis file is mainly used to tell us more about the packages needed:
-numpy
-keras
-tensor flow
-pickle
-sklearn.preprocessing
-matplotlib.pyplot
-os
-pyaudio
-librosa
-wave
-time
-re
-random
-scipy
-pydub
+numpy pip3 install numpy
+keras betenzel ma3 tensor flow
+tensor flow pip3 install Tensorflow-gpu
+pickle mawgooda already gooda python
+sklearn.preprocessing pip3 install sklearn
+matplotlib.pyplot pip3 install matplotlib
+os mawgooda gowa pythong
+pyaudio pip3 install Pyaudio
+librosa pip3 install librosa
+wave pip3 install wave
+time mawgooda already gowa python
+re mawgooda already gowa python
+random mawgooda already gowa python 
+scipy pip3 install scipy
+pydub pip3 install pydub
